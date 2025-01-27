@@ -1,0 +1,23 @@
+.category-item {
+    position: relative;
+    display: inline-block;
+    padding: 10px 40px 10px 10px; /* Aumentar o padding à direita para acomodar o botão "x" */
+    margin: 5px;
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 5px;
+    height: 50px;
+    line-height: 30px;
+    white-space: nowrap; /* Impedir quebra de linha */
+    overflow: hidden; /* Esconder texto que ultrapassar o limite */
+    text-overflow: ellipsis; /* Adicionar reticências ao texto que ultrapassar o limite */
+}
+.category-item .close-btn {
+    position: absolute;
+    top: -8px;
+    right: -1px;
+    background: none;
+    border: none;
+    font-size: 16px;
+    cursor: pointer;
+}

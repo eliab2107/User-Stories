@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('transacaos', function (Blueprint $table) {
             $table->id();
             $table->string('t_tipo');
-            $table->decimal('valor', 10, 2);
+            $table->decimal('value', 10, 2);
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->foreignId('categoria_id')->constrained()->onDelete('cascade');
             $table->timestamps();

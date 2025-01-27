@@ -10,32 +10,24 @@ use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
+
     // Função para criar uma nova conta de usuário
-    public function create(Request $request)
+    public function register(Request $request)
     {
-        // Validação dos dados
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8',
-            'cpf' => 'required|string|max:14|unique:users',
-            'token_name' => 'required|string',
-        ]);
-
-         // Validação e criação do usuário
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'cpf' => $request->cpf,
-        ]);
-
-        $token = $user->createToken('auth_token')->plainTextToken;
-
-      
-        return response()->json(['token' => $token], 201);
+        try {
+            User::valideDataToRegister($request);
+            $user = User::registerUser($request);
+            return response()->json(['response' => 'User Register with sucess'], 201);
+        } catch (\Exception $e) {
+                return response()->json(['error' => $e->getMessage()], 400);
+        }
     }
-
+    
+    public function getAllUsers(Request $request)
+    {
+        $users = User::all();
+        return response()->json($users);
+    }
     // Função para deletar a própria conta
     public function delete(Request $request)
     {
