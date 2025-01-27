@@ -19,7 +19,7 @@ return new class extends Migration
             $table->foreignId('categoria_id')->constrained()->onDelete('cascade');
             $table->timestamps();
             
-            $table->foreign('t_tipo')->references('code')->on('tipos_transacao')->onDelete('cascade');
+            $table->foreign('t_tipo')->references('code')->on('tipos_transacao')->onDelete('restrict');
         });
     }
 

@@ -23,26 +23,59 @@ class UserController extends Controller
         }
     }
     
-    public function getAllUsers(Request $request)
-    {
-        $users = User::all();
-        return response()->json($users);
-    }
+   
     // Função para deletar a própria conta
     public function delete(Request $request)
     {
-        // Excluir o usuário autenticado
-        $user = $request->user(); // pega o usuário autenticado
-        $user->deleteAccount();
-
+       try {
+            $user = $request->user();
+            if (!$user) {
+                return response()->json(['error' => 'Usuário não autenticado'], 401);
+            }
+            $user->delete();
+            
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 400);
+        }
         return response()->json(['message' => 'Conta deletada com sucesso!']);
     }
 
-    public function index()
+    public function update(Request $request)
     {
-        // Retorna todas as transações com os relacionamentos
-        $transacoes = Transacao::with(['user', 'categoria', 'tipoTransacao'])->get();
-        return response()->json($transacoes);
+        try {
+            // Verifica se o usuário está autenticado
+            $user = $request->user();
+            if (!$user) {
+            return response()->json(['error' => 'Usuário não autenticado'], 401);
+            }
+
+            // Valida os dados recebidos
+            $validatedData = $request->validate([
+            'name' => 'nullable|string|max:255',
+            'email' => 'nullable|string|email|max:255|unique:users,email,' . $user->id,
+            'password' => 'nullable|string|min:8|confirmed',
+            'cpf' => 'nullable|string|unique:users,cpf,' . $user->id
+            ]);
+
+            // Atualiza os campos do usuário apenas se não forem nulos
+            if (!empty($validatedData['name'])) {
+                $user->name = $validatedData['name'];
+            }
+            if (!empty($validatedData['email'])) {
+                $user->email = $validatedData['email'];
+            }
+            if (!empty($validatedData['password'])) {
+                $user->password = Hash::make($validatedData['password']);
+            }
+            if (!empty($validatedData['cpf'])) {
+                $user->cpf = $validatedData['cpf'];
+            }
+            $user->save();
+
+            return response()->json(['message' => 'Usuário atualizado com sucesso!', 'user' => $user], 200);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 400);
+        }
     }
 
     public function show($id)

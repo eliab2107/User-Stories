@@ -28,7 +28,9 @@ class CategoryController extends Controller
     {
         try {
             $user = User::getUserByToken($request->bearerToken());
-           
+            if (!$user) {
+                return response()->json(['error' => 'User not Authenticated'], 401);
+            }
             $categories = Categoria::where('user_id', $user->id)->get();
             return response()->json($categories);
         } catch (\Exception $e) {
@@ -66,14 +68,21 @@ class CategoryController extends Controller
     }
 
     // Remove the specified resource from storage.
-    public function destroy($id)
+    public function delete(Request $request)
     {
-        $category = Categoria::find($id);
-        if (is_null($category)) {
+        try {
+            $user = User::getUserByToken($request->bearerToken());
+            if (!$user) {
+                return response()->json(['error' => 'User not Authenticated'], 401);
+            }
+            $category = Categoria::find($request->category_id);
+            if (is_null($category)) {
             return response()->json(['message' => 'Category not found'], 404);
+            }
+            $category->delete();
+            return response()->json(['message' => 'Category deleted successfully'], 204);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
         }
-        $category->delete();
-        return response()->json(null, 204);
     }
-
 }
