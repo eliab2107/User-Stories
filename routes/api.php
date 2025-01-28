@@ -6,12 +6,11 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\TransacaoController;
 
-Route::post('/register', [UserController::class, 'register'])->name('register');
-Route::post('/login', [AuthController::class, 'login'])->name('login');
+Route::post('/register', [UserController::class, 'register']);
+Route::post('/login', [AuthController::class, 'login']);
 
 
-Route::delete('/user/delete', [UserController::class, 'deleteCount']);
-
+ Route::get('/transaction/getbyfilter', [TransacaoController::class, 'getbyfilter']);
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
     Route::get('/user', function (Request $request) {
@@ -33,8 +32,13 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/transaction/getall', [TransacaoController::class, 'getall']);
     Route::post('/transaction/create', [TransacaoController::class, 'create']);
     Route::delete('/transaction/delete', [TransacaoController::class, 'delete']);
-    
+
    
+
+    Route::get('/categoria_ids', function (Request $request) {
+        return response()->json([]);
+    });
+    
 });
 
 

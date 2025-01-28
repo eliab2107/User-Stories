@@ -10,6 +10,20 @@ class TransactionType extends Model
 
     protected $fillable = ['nome'];
 
+    public static function getNames(Request $request)
+    {
+        try {
+
+            $transactionTypes = self::all()->pluck('nome', 'id');
+
+        } catch (\Exception $e) {
+
+            return response()->json(['error' => $e->getMessage()], 500);
+            
+        }
+        return response()->json($transactionTypes);
+    }
+
     // Relacionamentos:
     public function transacoes()
     {

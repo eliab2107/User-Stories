@@ -15,7 +15,7 @@ class UserController extends Controller
     public function register(Request $request)
     {
         try {
-            User::valideDataToRegister($request);
+            User::validateDataToRegister($request);
             $user = User::registerUser($request);
             return response()->json(['response' => 'User Register with sucess'], 201);
         } catch (\Exception $e) {

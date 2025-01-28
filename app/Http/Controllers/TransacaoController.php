@@ -63,9 +63,40 @@ class TransacaoController extends Controller
     }
 
     // Store a newly created transaction in storage
-    public function store(Request $request)
+    public function getbyfilter(Request $request)
     {
         // Code to store a new transaction
+    try {
+        $user = User::getUserByToken($request->bearerToken());
+
+        if (!$user) {
+            return response()->json(['error' => 'User not Authenticated'], 401);
+        }
+
+        $query = Transacao::where('user_id', $user->id);
+
+        if ($request->has('start_date') && $request->has('end_date')) {
+            $query->whereBetween('created_at', [$request->start_date, $request->end_date]);
+        }
+
+        if ($request->has('t_tipo')) {
+            $query->where('t_tipo', $request->t_tipo);
+        }
+
+        if ($request->has('categoria_id')) {
+            $query->where('categoria_id', $request->categoria_id);
+        }
+
+        $transactions = $query->get();
+
+        if ($transactions->isEmpty()) {
+        return response()->json(['error' => 'Transactions not found', $user], 404);
+        }
+
+        return response()->json($transactions);
+    } catch (\Exception $e) {
+        return response()->json(['error' => 'Failed to retrieve transactions', 'message' => $e->getMessage()], 500);
+    }
     }
 
     // Display the specified transaction
