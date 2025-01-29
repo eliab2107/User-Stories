@@ -15,11 +15,13 @@ return new class extends Migration
             $table->id();
             $table->string('t_tipo');
             $table->decimal('value', 10, 2);
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->foreignId('categoria_id')->constrained()->onDelete('cascade');
+            $table->foreignId('user_id');
+            $table->foreignId('categoria_id')->nullable();
             $table->timestamps();
             
             $table->foreign('t_tipo')->references('code')->on('tipos_transacao')->onDelete('restrict');
+            $table->foreign('categoria_id')->references('id')->on('categorias')->onDelete('set null');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
         });
     }
 
