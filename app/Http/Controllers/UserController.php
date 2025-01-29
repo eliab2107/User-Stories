@@ -11,11 +11,44 @@ use Illuminate\Support\Facades\Hash;
 class UserController extends Controller
 {
 
-    // Função para criar uma nova conta de usuário
+    
+    /**
+     * @OA\Post(
+     *     path="api/user/register",
+     *     summary="Register a new user",
+     *     tags={"User"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="name", type="string", example="John Doe"),
+     *             @OA\Property(property="email", type="string", example="john.doe@example.com"),
+     *             @OA\Property(property="password", type="string", example="password123")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="User Register with success",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="response", type="string", example="User Register with success")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Bad Request",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="error", type="string", example="Error message")
+     *         )
+     *     )
+     * )
+     */
     public function register(Request $request)
     {
         try {
             User::validateDataToRegister($request);
+            $request->cpf = str_replace(['.', '-'], '', $request->cpf);
             $user = User::registerUser($request);
             return response()->json(['response' => 'User Register with sucess'], 201);
         } catch (\Exception $e) {
@@ -23,8 +56,61 @@ class UserController extends Controller
         }
     }
     
-   
-    // Função para deletar a própria conta
+    /**
+     * @OA\Delete(
+     *     path="/api/user/delete",
+     *     summary="Delete user account",
+     *     description="Deletes the authenticated user's account.",
+     *     tags={"User"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(
+     *                 property="token",
+     *                 type="string",
+     *                 description="Authentication token"
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Conta deletada com sucesso!",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(
+     *                 property="message",
+     *                 type="string",
+     *                 example="Conta deletada com sucesso!"
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Bad request",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(
+     *                 property="error",
+     *                 type="string",
+     *                 example="Error message"
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Usuário não autenticado",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(
+     *                 property="error",
+     *                 type="string",
+     *                 example="Usuário não autenticado"
+     *             )
+     *         )
+     *     )
+     * )
+     */
     public function delete(Request $request)
     {
        try {
@@ -40,16 +126,44 @@ class UserController extends Controller
         return response()->json(['message' => 'Conta deletada com sucesso!']);
     }
 
+
+    /**
+ * @OA\Put(
+ *     path="/users/{id}",
+ *     summary="Atualizar usuário",
+ *     description="Atualiza os dados de um usuário",
+ *     operationId="updateUser",
+ *     tags={"Usuário"},
+ *     @OA\Parameter(
+ *         name="id",
+ *         in="path",
+ *         description="ID do usuário",
+ *         required=true,
+ *         @OA\Schema(type="integer")
+ *     ),
+ *     @OA\RequestBody(
+ *         required=true,
+ *         @OA\JsonContent(ref="#/components/schemas/User")
+ *     ),
+ *     @OA\Response(
+ *         response=200,
+ *         description="Usuário atualizado com sucesso",
+ *         @OA\JsonContent(ref="#/components/schemas/User")
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Usuário não encontrado"
+ *     )
+ * )
+ */
     public function update(Request $request)
     {
         try {
-            // Verifica se o usuário está autenticado
             $user = $request->user();
             if (!$user) {
             return response()->json(['error' => 'Usuário não autenticado'], 401);
             }
 
-            // Valida os dados recebidos
             $validatedData = $request->validate([
             'name' => 'nullable|string|max:255',
             'email' => 'nullable|string|email|max:255|unique:users,email,' . $user->id,
@@ -57,7 +171,7 @@ class UserController extends Controller
             'cpf' => 'nullable|string|unique:users,cpf,' . $user->id
             ]);
 
-            // Atualiza os campos do usuário apenas se não forem nulos
+            
             if (!empty($validatedData['name'])) {
                 $user->name = $validatedData['name'];
             }
@@ -76,12 +190,5 @@ class UserController extends Controller
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 400);
         }
-    }
-
-    public function show($id)
-    {
-        // Retorna uma transação específica com os relacionamentos
-        $transacao = Transacao::with(['user', 'categoria', 'tipoTransacao'])->findOrFail($id);
-        return response()->json($transacao);
     }
 }

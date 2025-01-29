@@ -8,25 +8,54 @@ use App\Models\User;
 
 class AuthController extends Controller
 {
-    // Método de login
+     /**
+     * @OA\Get(
+     *     path="/api/login",
+     *     summary="Login a user",
+     *     tags={"Categories"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"email", "password"},
+     *             @OA\Property( property="email",  type="string",  description="Email of the user" ),    
+     *             @OA\Property( property="password",  type="string",  description="Password of the user" )     
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Login With Sucess",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="token", type="string", example="00|dQMSEc17xseRzOwsuDLUhu0nnr0C7gU1hdsGl7FR75189e29"),
+     *             @OA\Property(property="redirect", type="Route", example="dashboard"),
+     *             @OA\Property(property="user", type="Object", example={"id": 1, "name": "John Doe", "email": "Jhon@gmail.comn", "cpf": "12345678901",
+     *                "password": "senhasegura123"})
+     *         )
+     *     )
+     * )
+     */
+
     public function login(Request $request)
     {
-        $request->validate([
-            'email' => 'required|string|email',
-            'password' => 'required|string',
-        ]);
+        try {
+            $request->validate([
+                'email' => 'required|string|email',
+                'password' => 'required|string',
+            ]);
 
-        if (!Auth::attempt($request->only('email', 'password'))) {
-            return response()->json(['message' => 'Invalid login details'], 401);
+            if (!Auth::attempt($request->only('email', 'password'))) {
+                return response()->json(['message' => 'Invalid login details'], 401);
+            }
+
+            $user = $request->user();
+            $token = $user->createToken('auth_token')->plainTextToken; 
+
+            return response()->json(['token' => $token, 'user' => $user, 'redirect' => route('dashboard')], 200);
+        } catch (\Exception $e) {
+           
+            return response()->json(['error' => $e->getMessage()], 500);
         }
+       
 
-        $user = $request->user();
-        $token = $user->createToken('auth_token')->plainTextToken;
-
-        return response()->json([
-            'token' => $token,
-            'user' => $user,
-            'redirect' => route('dashboard')
-        ], 200);
+       
     }
 }
