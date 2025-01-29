@@ -13,6 +13,41 @@ use Laravel\Sanctum\PersonalAccessToken;
 
 class User extends Authenticatable
 {
+
+/**
+ * @OA\Schema(
+ *     schema="User",
+ *     type="object",
+ *     title="Usuário",
+ *     description="Modelo de um usuário",
+ *     @OA\Property(
+ *         property="id",
+ *         type="integer",
+ *         description="ID do usuário"
+ *     ),
+ *     @OA\Property(
+ *         property="name",
+ *         type="string",
+ *         description="Nome do usuário"
+ *     ),
+ *     @OA\Property(
+ *         property="email",
+ *         type="string",
+ *         format="email",
+ *         description="Email do usuário"
+ *     ),
+ *     @OA\Property(
+ *         property="password",
+ *         type="string",
+ *         description="Senha do usuário"
+ *     ),
+ *     @OA\Property(
+ *         property="cpf",
+ *         type="string",
+ *         description="CPF do usuário"
+ *     )
+ * )
+ */
     use HasFactory, Notifiable, HasApiTokens;
     protected $fillable = ['name', 'email', 'password', 'cpf'];
 
