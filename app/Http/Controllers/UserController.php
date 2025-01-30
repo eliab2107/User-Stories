@@ -48,12 +48,25 @@ class UserController extends Controller
     {
         try {
             User::validateDataToRegister($request);
+
             $request->cpf = str_replace(['.', '-'], '', $request->cpf);
             $user = User::registerUser($request);
-            return response()->json(['response' => 'User Register with sucess'], 201);
-        } catch (\Exception $e) {
-                return response()->json(['error' => $e->getMessage()], 400);
+
+            return response()->json(['response' => 'User Register with sucess', $user], 201);
+        } catch (\Illuminate\Database\QueryException $e) {    
+
+            return response()->json([ 'error' => 'Conflict', 'message' => 'The provided customer ID does not exist.'], 422); 
+        
+        } catch (\Illuminate\Validation\ValidationException $e) {
+
+            return response()->json(['error' => 'Failed to create transaction', 'message' => $e->getMessage()], 400);
+
         }
+        catch (\Exception $e) {
+
+            return response()->json(['error' => 'Failed to create transaction', 'message' => $e->getMessage()], 500);
+
+        }   
     }
     
     /**
@@ -108,22 +121,49 @@ class UserController extends Controller
      *                 example="Usuário não autenticado"
      *             )
      *         )
-     *     )
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Conflict",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="error", type="string", example="Conflict"),
+     *             @OA\Property(property="message", type="string", example="The provided customer ID does not exist.")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Failed Delete user",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="error", type="string", example="Conflict"),
+     *             @OA\Property(property="message", type="string", example="The provided customer ID does not exist.")
+     *         )
+     *     ),
+     *  security={{"bearerAuth":{}}}
      * )
      */
     public function delete(Request $request)
     {
        try {
+
             $user = $request->user();
-            if (!$user) {
-                return response()->json(['error' => 'Usuário não autenticado'], 401);
-            }
             $user->delete();
-            
-        } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 400);
+
+            return response()->json(['message' => 'Conta deletada com sucesso!']);
+
+        } catch (\Illuminate\Database\QueryException $e) {      
+
+            return response()->json([ 'error' => 'Conflict', 'message' => 'The provided customer ID does not exist.'], 422); 
+        
+        } catch (\Illuminate\Validation\ValidationException $e) {
+
+            return response()->json(['error' => 'Failed to create transaction', 'message' => $e->getMessage()], 400);
+
         }
-        return response()->json(['message' => 'Conta deletada com sucesso!']);
+        catch (\Exception $e) {
+
+            return response()->json(['error' => 'Failed to create transaction', 'message' => $e->getMessage()], 500);
+
+        }
     }
 
 
@@ -151,23 +191,51 @@ class UserController extends Controller
  *         @OA\JsonContent(ref="#/components/schemas/User")
  *     ),
  *     @OA\Response(
+ *         response=400,
+ *         description="Failed Request Validation",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="error", type="string", example="Conflict"),
+ *             @OA\Property(property="message", type="string", example="The provided customer ID does not exist.")
+ *         )
+ *     ),
+ *      @OA\Response(
+ *         response=401,
+ *         description="User not Authenticated",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="error", type="string", example="User not Authenticated")
+ *         )
+ *     ),
+ *     @OA\Response(
  *         response=404,
  *         description="Usuário não encontrado"
- *     )
+ *     ),
+ *     @OA\Response(
+ *         response=422,
+ *         description="Conflict",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="error", type="string", example="Conflict"),
+ *             @OA\Property(property="message", type="string", example="The provided customer ID does not exist.")
+ *         )
+ *     ),
+ *     @OA\Response(
+*         response=500,
+*         description="Failed to delete transaction",
+*         @OA\JsonContent(
+*             @OA\Property(property="error", type="string", example="Failed to delete transaction"),
+*             @OA\Property(property="message", type="string", example="Error message")
+*         )
+*     ),
+ *      security={{"bearerAuth":{}}}
  * )
  */
     public function update(Request $request)
     {
         try {
             $user = $request->user();
-            if (!$user) {
-            return response()->json(['error' => 'Usuário não autenticado'], 401);
-            }
 
             $validatedData = $request->validate([
             'name' => 'nullable|string|max:255',
             'email' => 'nullable|string|email|max:255|unique:users,email,' . $user->id,
-            'password' => 'nullable|string|min:8|confirmed',
             'cpf' => 'nullable|string|unique:users,cpf,' . $user->id
             ]);
 
@@ -178,17 +246,26 @@ class UserController extends Controller
             if (!empty($validatedData['email'])) {
                 $user->email = $validatedData['email'];
             }
-            if (!empty($validatedData['password'])) {
-                $user->password = Hash::make($validatedData['password']);
-            }
+           
             if (!empty($validatedData['cpf'])) {
                 $user->cpf = $validatedData['cpf'];
             }
+
             $user->save();
 
             return response()->json(['message' => 'Usuário atualizado com sucesso!', 'user' => $user], 200);
-        } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 400);
+        } catch (\Illuminate\Database\QueryException $e) {            
+            return response()->json([ 'error' => 'Conflict', 'message' => 'The provided customer ID does not exist.'], 422); 
+        
+        } catch (\Illuminate\Validation\ValidationException $e) {
+
+            return response()->json(['error' => 'Failed to create transaction', 'message' => $e->getMessage()], 400);
+
         }
+        catch (\Exception $e) {
+
+            return response()->json(['error' => 'Failed to create transaction', 'message' => $e->getMessage()], 500);
+
+        }   
     }
 }

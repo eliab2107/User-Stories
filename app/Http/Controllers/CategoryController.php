@@ -28,11 +28,27 @@ class CategoryController extends Controller
      *             @OA\Property(property="message", type="string", example="Find Categories With Sucess")
      *         )
      *     ),
+     *    @OA\Response(
+     *         response=400,
+     *         description="Failed Request Validation",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="error", type="string", example="Conflict"),
+     *             @OA\Property(property="message", type="string", example="The provided customer ID does not exist.")
+     *         )
+     *     ),
      *     @OA\Response(
      *         response=401,
      *         description="User not Authenticated",
      *         @OA\JsonContent(
      *             @OA\Property(property="error", type="string", example="User not Authenticated")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Conflict",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="error", type="string", example="Conflict"),
+     *             @OA\Property(property="message", type="string", example="The provided customer ID does not exist.")
      *         )
      *     ),
      *     @OA\Response(
@@ -57,16 +73,29 @@ class CategoryController extends Controller
     public function getallbyuser(Request $request)
     {
         try {
-
             $categories = Categoria::where('user_id', $request->user()->id)->get();
+
             if (count($categories) == 0) {
+
                 return response()->json(['message' => 'No Categories Found'], 404);
+
             }
             return response()->json(['message' => 'Find Categories With Sucess', 'categories' => $categories], 201);
 
-        } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
+        } catch (\Illuminate\Database\QueryException $e) {   
+                     
+            return response()->json([ 'error' => 'Conflict', 'message' => 'The provided customer ID does not exist.'], 422); 
+        
+        } catch (\Illuminate\Validation\ValidationException $e) {
+
+            return response()->json(['error' => 'Failed to create transaction', 'message' => $e->getMessage()], 400);
+
         }
+        catch (\Exception $e) {
+
+            return response()->json(['error' => 'Failed to create transaction', 'message' => $e->getMessage()], 500);
+
+        }   
     }
 
 
@@ -91,13 +120,28 @@ class CategoryController extends Controller
      *         )
      *     ),
      *     @OA\Response(
+     *         response=400,
+     *         description="Failed Request Validation",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="error", type="string", example="Conflict"),
+     *             @OA\Property(property="message", type="string", example="The provided customer ID does not exist.")
+     *         )
+     *     ),
+     *     @OA\Response(
      *         response=401,
      *         description="User not Authenticated",
      *         @OA\JsonContent(
      *             @OA\Property(property="error", type="string", example="User not Authenticated")
      *         )
      *     ),
-     *    
+     *     @OA\Response(
+     *         response=422,
+     *         description="Conflict",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="error", type="string", example="Conflict"),
+     *             @OA\Property(property="message", type="string", example="The provided customer ID does not exist.")
+     *         )
+     *     ),
      *     @OA\Response(
      *         response=500,
      *         description="Failed to Create Category",
@@ -117,15 +161,29 @@ class CategoryController extends Controller
             $request->validate([
             'name' => 'required|string',
             ]);
+            
             $category = Categoria::create([
             'name' => $request->name,
             'user_id' => $request->user()->id,
             ]);
 
-        } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage(), 'user_id' => $request->user()->id], 500);
+            return response()->json(['message' => 'Category created successfully', 'category' => $category], 201);
+
+        } catch (\Illuminate\Database\QueryException $e) {            
+
+                return response()->json([ 'error' => 'Conflict', 'message' => 'The provided customer ID does not exist.'], 422); 
+            
+        } catch (\Illuminate\Validation\ValidationException $e) {
+
+            return response()->json(['error' => 'Failed to create transaction', 'message' => $e->getMessage()], 400);
+
         }
-        return response()->json(['message' => 'Category created successfully', 'category' => $category], 201);
+        catch (\Exception $e) {
+
+            return response()->json(['error' => 'Failed to create transaction', 'message' => $e->getMessage()], 500);
+
+        }   
+        
     }
 
     /**
@@ -149,20 +207,35 @@ class CategoryController extends Controller
      *         )
      *     ),
      *     @OA\Response(
+     *         response=400,
+     *         description="Failed Request Validation",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="error", type="string", example="Conflict"),
+     *             @OA\Property(property="message", type="string", example="The provided customer ID does not exist.")
+     *         )
+     *     ),
+     *     @OA\Response(
      *         response=401,
      *         description="User not Authenticated",
      *         @OA\JsonContent(
      *             @OA\Property(property="error", type="string", example="User not Authenticated")
      *         )
      *     ),
-     *   @OA\Response(
+     *     @OA\Response(
      *         response=404,
      *         description="Category not Found",
      *         @OA\JsonContent(
      *             @OA\Property(property="error", type="string", example="Category not Found")
      *         )
      *     ),
-     *    
+     *     @OA\Response(
+     *         response=422,
+     *         description="Conflict",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="error", type="string", example="Conflict"),
+     *             @OA\Property(property="message", type="string", example="The provided customer ID does not exist.")
+     *         )
+     *     ),
      *     @OA\Response(
      *         response=500,
      *         description="Failed to Create Category",
@@ -181,18 +254,92 @@ class CategoryController extends Controller
                 'category_id' => 'required|integer',
             ]);
 
-            $category = Categoria::find($request->category_id);
+            $category = Categoria::where("id", $request->category_id)->where('user_id', $request->user()->id)->first();
             if (!$category) {
                 return response()->json(['message' => 'Category not found'], 404);
             }
 
             $category->delete();
             return response()->json(['message' => 'Category deleted successfully'], 204);
-        } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
+        } catch (\Illuminate\Database\QueryException $e) { 
+
+            return response()->json([ 'error' => 'Conflict', 'message' => 'The provided customer ID does not exist.'], 422); 
+        
+        } catch (\Illuminate\Validation\ValidationException $e) {
+
+            return response()->json(['error' => 'Failed to create transaction', 'message' => $e->getMessage()], 400);
+
         }
+        catch (\Exception $e) {
+
+            return response()->json(['error' => 'Failed to create transaction', 'message' => $e->getMessage()], 500);
+
+        }   
     }
 
+
+    /**
+     * @OA\Get(
+     *     path="/api/category/update",
+     *     summary="Update a category",
+     *     tags={"Categories"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"category_id", "token", "new_name"},
+     *             @OA\Property( property="token",  type="string",  description="Authentication token"),     
+     *             @OA\Property( property="category_id",  type="string",  description="id of the category" ),
+     *             @OA\Property( property="new_name",  type="string",  description="new name of the category" )     
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=204,
+     *         description="Delete Category With Sucess",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Update Category With Sucess")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Failed Request Validation",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="error", type="string", example="Conflict"),
+     *             @OA\Property(property="message", type="string", example="The provided customer ID does not exist.")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="User not Authenticated",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="error", type="string", example="User not Authenticated")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Category not Found",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="error", type="string", example="Category not Found")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Conflict",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="error", type="string", example="Conflict"),
+     *             @OA\Property(property="message", type="string", example="The provided customer ID does not exist.")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Failed to Create Category",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="error", type="string", example="Failed to Create Category"),
+     *             @OA\Property(property="message", type="string", example="Error message")
+     *         )
+     *     ),
+     *     security={{"bearerAuth":{}}}
+     * )
+     */
     public function update(Request $request)
     {
         try {
@@ -202,7 +349,7 @@ class CategoryController extends Controller
                 'category_id' => 'required|integer',
             ]);
 
-            $category = Categoria::find($request->category_id);
+            $category = Categoria::where($request->category_id)->where('user_id', $request->user()->id)->first();
 
             if (!$category) {
                 return response()->json(['message' => 'Category not found'], 404);
@@ -212,8 +359,19 @@ class CategoryController extends Controller
             $category->save();
 
             return response()->json(['message' => 'Category updated successfully'], 200);
-        } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
+        } catch (\Illuminate\Database\QueryException $e) {            
+
+            return response()->json([ 'error' => 'Conflict', 'message' => 'The provided customer ID does not exist.'], 422); 
+        
+        } catch (\Illuminate\Validation\ValidationException $e) {
+
+            return response()->json(['error' => 'Failed to create transaction', 'message' => $e->getMessage()], 400);
+
         }
+        catch (\Exception $e) {
+
+            return response()->json(['error' => 'Failed to create transaction', 'message' => $e->getMessage()], 500);
+
+        }   
     }
 }

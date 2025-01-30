@@ -74,6 +74,62 @@
                                 }
                             }
                         }
+                    },
+                    "400": {
+                        "description": "Failed Request Validation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Conflict"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "The provided customer ID does not exist."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "User not Authenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "User not Authenticated"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to delete transaction",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Failed to delete transaction"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Error message"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -121,6 +177,26 @@
                             }
                         }
                     },
+                    "400": {
+                        "description": "Failed Request Validation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Conflict"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "The provided customer ID does not exist."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
                     "401": {
                         "description": "User not Authenticated",
                         "content": {
@@ -130,6 +206,26 @@
                                         "error": {
                                             "type": "string",
                                             "example": "User not Authenticated"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Conflict",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Conflict"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "The provided customer ID does not exist."
                                         }
                                     },
                                     "type": "object"
@@ -229,6 +325,26 @@
                             }
                         }
                     },
+                    "400": {
+                        "description": "Failed Request Validation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Conflict"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "The provided customer ID does not exist."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
                     "401": {
                         "description": "User not Authenticated",
                         "content": {
@@ -238,6 +354,26 @@
                                         "error": {
                                             "type": "string",
                                             "example": "User not Authenticated"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Conflict",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Conflict"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "The provided customer ID does not exist."
                                         }
                                     },
                                     "type": "object"
@@ -321,6 +457,26 @@
                             }
                         }
                     },
+                    "400": {
+                        "description": "Failed Request Validation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Conflict"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "The provided customer ID does not exist."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
                     "401": {
                         "description": "User not Authenticated",
                         "content": {
@@ -346,6 +502,179 @@
                                         "error": {
                                             "type": "string",
                                             "example": "Category not Found"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Conflict",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Conflict"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "The provided customer ID does not exist."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to Create Category",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Failed to Create Category"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Error message"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/category/update": {
+            "get": {
+                "tags": [
+                    "Categories"
+                ],
+                "summary": "Update a category",
+                "operationId": "059df4b02dd63d120f9404e0a3996236",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "category_id",
+                                    "token",
+                                    "new_name"
+                                ],
+                                "properties": {
+                                    "token": {
+                                        "description": "Authentication token",
+                                        "type": "string"
+                                    },
+                                    "category_id": {
+                                        "description": "id of the category",
+                                        "type": "string"
+                                    },
+                                    "new_name": {
+                                        "description": "new name of the category",
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "204": {
+                        "description": "Delete Category With Sucess",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Update Category With Sucess"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Failed Request Validation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Conflict"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "The provided customer ID does not exist."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "User not Authenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "User not Authenticated"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Category not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Category not Found"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Conflict",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Conflict"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "The provided customer ID does not exist."
                                         }
                                     },
                                     "type": "object"
@@ -518,8 +847,28 @@
                             }
                         }
                     },
+                    "400": {
+                        "description": "Failed Request Validation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Conflict"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "The provided customer ID does not exist."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
                     "404": {
-                        "description": "User not found",
+                        "description": "Category not found",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -616,6 +965,26 @@
                             }
                         }
                     },
+                    "400": {
+                        "description": "Failed Request Validation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Conflict"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "The provided customer ID does not exist."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
                     "404": {
                         "description": "Transaction not found",
                         "content": {
@@ -625,6 +994,26 @@
                                         "error": {
                                             "type": "string",
                                             "example": "Transaction not found"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Conflict",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Conflict"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "The provided customer ID does not exist."
                                         }
                                     },
                                     "type": "object"
@@ -714,6 +1103,26 @@
                             }
                         }
                     },
+                    "400": {
+                        "description": "Failed Request Validation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Conflict"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "The provided customer ID does not exist."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
                     "401": {
                         "description": "User not Authenticated",
                         "content": {
@@ -731,7 +1140,7 @@
                         }
                     },
                     "404": {
-                        "description": "Transaction not found",
+                        "description": "Transaction not found or Category not found",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -739,6 +1148,26 @@
                                         "error": {
                                             "type": "string",
                                             "example": "Transaction not found"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Conflict",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Conflict"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "The provided customer ID does not exist."
                                         }
                                     },
                                     "type": "object"
@@ -843,6 +1272,46 @@
                                         "error": {
                                             "type": "string",
                                             "example": "Transaction not found"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Conflict",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Conflict"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "The provided customer ID does not exist."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Failed Request Validation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Conflict"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "The provided customer ID does not exist."
                                         }
                                     },
                                     "type": "object"
@@ -1017,8 +1486,53 @@
                                 }
                             }
                         }
+                    },
+                    "422": {
+                        "description": "Conflict",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Conflict"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "The provided customer ID does not exist."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Failed Delete user",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Conflict"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "The provided customer ID does not exist."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     }
-                }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
             }
         },
         "/users/{id}": {
@@ -1061,10 +1575,91 @@
                             }
                         }
                     },
+                    "400": {
+                        "description": "Failed Request Validation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Conflict"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "The provided customer ID does not exist."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "User not Authenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "User not Authenticated"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
                     "404": {
                         "description": "Usuário não encontrado"
+                    },
+                    "422": {
+                        "description": "Conflict",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Conflict"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "The provided customer ID does not exist."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to delete transaction",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Failed to delete transaction"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Error message"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     }
-                }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
             }
         }
     },

@@ -53,19 +53,30 @@ class TransacaoController extends Controller
     public function getall(Request $request)
     {
         try {
-            $user = User::getUserByToken($request->bearerToken());
+            $request->validate([
+                'user_id' => 'required|integer',
+            ]);
+           
+            $transactions = Transacao::where('user_id', $request->user()->id)->get();
 
-            if (!$user) {
-                return response()->json(['error' => 'User not Authenticated'], 401);
-            }
-            $transactions = Transacao::where('user_id', $user->id)->get();
             if(!$transactions){
                 return response()->json(['error' => 'Transactions not found'], 404);
             }
+            
             return response()->json($transactions);
-        } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage(), $user], 500);
+        } catch (\Illuminate\Database\QueryException $e) {            
+            return response()->json([ 'error' => 'Conflict', 'message' => 'The provided customer ID does not exist.'], 422); 
+        
+        } catch (\Illuminate\Validation\ValidationException $e) {
+
+            return response()->json(['error' => 'Failed to create transaction', 'message' => $e->getMessage()], 400);
+
         }
+        catch (\Exception $e) {
+
+            return response()->json(['error' => 'Failed to create transaction', 'message' => $e->getMessage()], 500);
+
+        }   
     }
     
 
@@ -92,8 +103,16 @@ class TransacaoController extends Controller
      *         )
      *     ),
      *     @OA\Response(
+     *         response=400,
+     *         description="Failed Request Validation",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="error", type="string", example="Conflict"),
+     *             @OA\Property(property="message", type="string", example="The provided customer ID does not exist.")
+     *         )
+     *     ),
+     *     @OA\Response(
      *         response=404,
-     *         description="User not found",
+     *         description="Category not found",
      *         @OA\JsonContent(
      *             @OA\Property(property="error", type="string", example="User not found")
      *         )
@@ -120,13 +139,17 @@ class TransacaoController extends Controller
     public function create(Request $request)
     {
         try {
-            $user = User::getUserByToken($request->bearerToken());
-
-            if (!$user){
-                return response()->json(['error' => 'User not found'], 404);}
-
+            $request->validate([
+                't_tipo' => 'required|string',
+                'value' => 'required|numeric',
+                'categoria_id' => 'required|integer',
+            ]);
+            $category = Categoria::where('user_id', $request->user()->id)->where('id', $request->categoria_id)->first();
+            if (!$category) {
+                return response()->json(['error' => 'Category not found'], 404);
+            }
             $transaction = Transacao::create([
-            'user_id' => $user->id,
+            'user_id' => $request->user()->id,
             't_tipo' => $request->t_tipo,
             'value' => $request->value,
             'categoria_id' => $request->categoria_id,
@@ -134,16 +157,17 @@ class TransacaoController extends Controller
 
             return response()->json(['message' => 'Transaction created successfully', 'transaction' => $transaction], 201);
 
-        } catch (\QueryException $e) {
+        } catch (\Illuminate\Database\QueryException $e) {            
+                return response()->json([ 'error' => 'Conflict', 'message' => 'The provided customer ID does not exist.'], 422); 
             
-                return response()->json([
-                    'error' => 'Conflict',
-                    'message' => 'The provided customer ID does not exist.'
-                ], 422); 
-            
-        } catch (\Exception $e) {
+        } catch (\Illuminate\Validation\ValidationException $e) {
 
-            return response()->json(['error' => 'Failed to create transaction', 'message' => $e->getMessage(), $user], 500);
+            return response()->json(['error' => 'Failed to create transaction', 'message' => $e->getMessage()], 400);
+
+        }
+        catch (\Exception $e) {
+
+            return response()->json(['error' => 'Failed to create transaction', 'message' => $e->getMessage()], 500);
 
         }   
     }
@@ -168,10 +192,26 @@ class TransacaoController extends Controller
      *         )
      *     ),
      *     @OA\Response(
+     *         response=400,
+     *         description="Failed Request Validation",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="error", type="string", example="Conflict"),
+     *             @OA\Property(property="message", type="string", example="The provided customer ID does not exist.")
+     *         )
+     *     ),
+     *     @OA\Response(
      *         response=404,
      *         description="Transaction not found",
      *         @OA\JsonContent(
      *             @OA\Property(property="error", type="string", example="Transaction not found")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Conflict",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="error", type="string", example="Conflict"),
+     *             @OA\Property(property="message", type="string", example="The provided customer ID does not exist.")
      *         )
      *     ),
      *     @OA\Response(
@@ -188,37 +228,44 @@ class TransacaoController extends Controller
     public function getbyfilter(Request $request)
     {
        
-    try {
-        $user = User::getUserByToken($request->bearerToken());
+        try {
+            $request->validate([
+                'transaction_id' => 'required|integer',
+            ]);
+                $query = Transacao::where('user_id', $request->user()->id);
 
-        if (!$user) {
-            return response()->json(['error' => 'User not Authenticated'], 401);
+                if ($request->has('start_date') && $request->has('end_date')) {
+                    $query->whereBetween('created_at', [$request->start_date, $request->end_date]);
+                }
+
+                if ($request->has('t_tipo')) {
+                    $query->where('t_tipo', $request->t_tipo);
+                }
+
+                if ($request->has('categoria_id')) {
+                    $query->where('categoria_id', $request->categoria_id);
+                }
+
+                $transactions = $query->get();
+
+                if ($transactions->isEmpty()) {
+                    return response()->json(['error' => 'Transactions not found'], 404);
+                }
+
+            return response()->json($transactions, 204);
+        } catch (\Illuminate\Database\QueryException $e) {            
+            return response()->json([ 'error' => 'Conflict', 'message' => 'The provided customer ID does not exist.'], 422); 
+        
+        } catch (\Illuminate\Validation\ValidationException $e) {
+
+            return response()->json(['error' => 'Failed to create transaction', 'message' => $e->getMessage()], 400);
+
         }
+        catch (\Exception $e) {
 
-        $query = Transacao::where('user_id', $user->id);
+            return response()->json(['error' => 'Failed to create transaction', 'message' => $e->getMessage()], 500);
 
-        if ($request->has('start_date') && $request->has('end_date')) {
-            $query->whereBetween('created_at', [$request->start_date, $request->end_date]);
-        }
-
-        if ($request->has('t_tipo')) {
-            $query->where('t_tipo', $request->t_tipo);
-        }
-
-        if ($request->has('categoria_id')) {
-            $query->where('categoria_id', $request->categoria_id);
-        }
-
-        $transactions = $query->get();
-
-        if ($transactions->isEmpty()) {
-        return response()->json(['error' => 'Transactions not found', $user], 404);
-        }
-
-        return response()->json($transactions);
-    } catch (\Exception $e) {
-        return response()->json(['error' => 'Failed to retrieve transactions', 'message' => $e->getMessage()], 500);
-    }
+        }   
     }
 
    
@@ -245,6 +292,14 @@ class TransacaoController extends Controller
      *         )
      *     ),
      *     @OA\Response(
+     *         response=400,
+     *         description="Failed Request Validation",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="error", type="string", example="Conflict"),
+     *             @OA\Property(property="message", type="string", example="The provided customer ID does not exist.")
+     *         )
+     *     ),
+     *     @OA\Response(
      *         response=401,
      *         description="User not Authenticated",
      *         @OA\JsonContent(
@@ -256,6 +311,14 @@ class TransacaoController extends Controller
      *         description="Transaction not found or Category not found",
      *         @OA\JsonContent(
      *             @OA\Property(property="error", type="string", example="Transaction not found")
+     *         )
+     *     ),
+     *    @OA\Response(
+     *         response=422,
+     *         description="Conflict",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="error", type="string", example="Conflict"),
+     *             @OA\Property(property="message", type="string", example="The provided customer ID does not exist.")
      *         )
      *     ),
      *     @OA\Response(
@@ -272,18 +335,17 @@ class TransacaoController extends Controller
     public function update(Request $request)
     {
         try {
-            $user = User::getUserByToken($request->bearerToken());
+            $request->validate([
+                'transaction_id' => 'required|integer',
+                'new_categoria_id' => 'required|integer',
+            ]);
 
-            if (!$user) {
-                return response()->json(['error' => 'User not Authenticated'], 401);
-            }
-
-            $categoria = Categoria::where('user_id', $user->id)->where('id', $request->new_categoria_id)->first();
+            $categoria = Categoria::where('user_id', $request->user()->id)->where('id', $request->new_categoria_id)->first();
             if (!$categoria) {
-                return response()->json(['error' => 'Category not found'], 404);
+                return response()->json(['error' => 'Category not found', $request->user()->id], 404);
             }
 
-            $transaction = Transacao::where('id', $request->transaction_id)->where('user_id', $user->id)->first();
+            $transaction = Transacao::where('id', $request->transaction_id)->where('user_id',  $request->user()->id)->first();
 
             if (!$transaction) {
                 return response()->json(['error' => 'Transaction not found'], 404);
@@ -295,9 +357,20 @@ class TransacaoController extends Controller
             return response()->json(['message' => 'Transaction updated successfully', 'transaction' => $transaction], 200);
 
             
-        } catch (\Exception $e) {
-            return response()->json(['error' => 'Failed to update transaction', 'message' => $e->getMessage()], 500);
+        } catch (\Illuminate\Database\QueryException $e) {            
+
+            return response()->json([ 'error' => 'Conflict', 'message' => 'The provided customer ID does not exist.'], 422); 
+        
+        } catch (\Illuminate\Validation\ValidationException $e) {
+
+            return response()->json(['error' => 'Failed to update transaction', 'message' => $e->getMessage()], 400);
+
         }
+        catch (\Exception $e) {
+
+            return response()->json(['error' => 'Failed to update transaction', 'message' => $e->getMessage()], 500);
+
+        }   
     }
 
     /**
@@ -334,6 +407,22 @@ class TransacaoController extends Controller
      *         )
      *     ),
      *     @OA\Response(
+     *         response=422,
+     *         description="Conflict",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="error", type="string", example="Conflict"),
+     *             @OA\Property(property="message", type="string", example="The provided customer ID does not exist.")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Failed Request Validation",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="error", type="string", example="Conflict"),
+     *             @OA\Property(property="message", type="string", example="The provided customer ID does not exist.")
+     *         )
+     *     ),
+     *     @OA\Response(
      *         response=500,
      *         description="Failed to delete transaction",
      *         @OA\JsonContent(
@@ -348,13 +437,10 @@ class TransacaoController extends Controller
     public function delete(Request $request)
     {
         try {
-            $user = User::getUserByToken($request->bearerToken());
-
-            if (!$user) {
-                return response()->json(['error' => 'User not Authenticated'], 401);
-            }
-
-            $transaction = Transacao::where('id', $request->transaction_id)->where('user_id', $user->id)->first();
+            $request->validate([
+                'transaction_id' => 'required|integer',
+            ]);
+            $transaction = Transacao::where('id', $request->transaction_id)->where('user_id', $request->user()->id)->first();
 
             if (!$transaction) {
                 return response()->json(['error' => 'Transaction not found'], 404);
@@ -364,8 +450,19 @@ class TransacaoController extends Controller
 
             return response()->json(['message' => 'Transaction deleted successfully'], 204);
 
-        } catch (\Exception $e) {
-            return response()->json(['error' => 'Failed to delete transaction', 'message' => $e->getMessage()], 500);
+        } catch (\Illuminate\Database\QueryException $e) {            
+
+            return response()->json([ 'error' => 'Conflict', 'message' => 'The provided customer ID does not exist.'], 422); 
+        
+        } catch (\Illuminate\Validation\ValidationException $e) {
+
+            return response()->json(['error' => 'Failed to delete transaction', 'message' => $e->getMessage()], 400);
+
         }
+        catch (\Exception $e) {
+
+            return response()->json(['error' => 'Failed to delete transaction', 'message' => $e->getMessage()], 500);
+
+        }   
     }
 }
